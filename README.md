@@ -3,12 +3,14 @@ Tools for helping use Container Registry.
 
 Includes:
 - Skopeo
-- RegClient
+- RegClient (`regctl` , `regbot`, `regsync`)
 
 # Motivation
 The main Motivation for this Docker/Podman/Container Image was to be able to:
 - Use the Custom `registries.conf` Configuration preferring Local Mirror on the Host
 - Use the Default `registries.conf` Configuration using Stock Registries so that the Apps inside the Container can bypass the Local Mirror
+
+Of course this also includes not having to install extra Tools on the Host :smiley:.
 
 # Build
 The Container can simply be built using:
