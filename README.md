@@ -4,6 +4,7 @@ Tools for helping use Container Registry.
 Includes:
 - Skopeo
 - RegClient (`regctl` , `regbot`, `regsync`)
+- Crane (`crane` , `gcrane`, `krane`)
 
 # Motivation
 The main Motivation for this Docker/Podman/Container Image was to be able to:

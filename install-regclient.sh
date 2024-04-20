@@ -3,8 +3,8 @@
 # Architecture
 TARGETPLATFORM=${1-"linux/amd64"}
 
-# Version
-REGCLIENT_VERSION=${2-"latest"}
+# Tag
+REGCLIENT_TAG=${2-"latest"}
 
 # Architecture Mapping
 if [ "${TARGETPLATFORM}" = "linux/amd64" ]
@@ -20,9 +20,9 @@ fi
 # Tag or Latest have different URL Structure
 if [[ "${REGCLIENT_TAG}" == "latest" ]]
 then
-   REGCLIENT_BASE_URL="https://github.com/regclient/regclient/releases/download/${REGCLIENT_TAG}"
-else
    REGCLIENT_BASE_URL="https://github.com/regclient/regclient/releases/latest/download"
+else
+   REGCLIENT_BASE_URL="https://github.com/regclient/regclient/releases/download/${REGCLIENT_TAG}"
 fi
 
 # Echo
@@ -37,7 +37,7 @@ REGBOT_DOWNLOAD_URL="${REGCLIENT_BASE_URL}/regbot-linux-${ARCHITECTURE}"
 # regsync download links
 REGSYNC_DOWNLOAD_URL="${REGCLIENT_BASE_URL}/regsync-linux-${ARCHITECTURE}"
 
-# Create Directory for RegClient Executables
+# Create Directory for RegClient Executables (if it doesn't exist yet)
 mkdir -p "/opt/regclient"
 
 # Fetch Packages

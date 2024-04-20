@@ -46,4 +46,4 @@ else
 fi
 
 # Upload to local Registry
-source ./upload_local_registry.sh
+source ./upload.sh
