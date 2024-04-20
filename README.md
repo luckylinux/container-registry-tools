@@ -7,9 +7,9 @@ Includes:
 - Crane (`crane` , `gcrane`, `krane`)
 
 Note: the following individual Images are also available from the Official Tool Developers
-- [regctl](ghcr.io/regclient/regctl)
-- [regbot](ghcr.io/regclient/regbot)
-- [regsync](ghcr.io/regclient/regsync)
+- [regctl](https://ghcr.io/regclient/regctl)
+- [regbot](https://ghcr.io/regclient/regbot)
+- [regsync](https://ghcr.io/regclient/regsync)
 
 # Motivation
 The main Motivation for this Docker/Podman/Container Image was to be able to:
