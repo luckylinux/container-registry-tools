@@ -9,7 +9,7 @@ SKOPEO_TAG=${2-"latest"}
 # Architecture Mapping
 if [ "${TARGETPLATFORM}" = "linux/amd64" ]
 then
-   ARCHITECTURE="x86_64"
+   ARCHITECTURE="amd64"
 elif [ "${TARGETPLATFORM}" = "linux/arm64/v8" ]
 then
    ARCHITECTURE="arm64";
@@ -29,7 +29,7 @@ fi
 echo "Base URL Set to: ${SKOPEO_BASE_URL}"
 
 # Skopeo download links
-SKOPEO_DOWNLOAD_URL="${SKOPEO_BASE_URL}/skopeo-linux_${ARCHITECTURE}"
+SKOPEO_DOWNLOAD_URL="${SKOPEO_BASE_URL}/skopeo-linux-${ARCHITECTURE}"
 
 # Echo
 echo "Download URL Set to: ${SKOPEO_DOWNLOAD_URL}"
