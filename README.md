@@ -2,6 +2,7 @@
 Tools for helping use Container Registry.
 
 Includes:
+- Podman
 - Skopeo
 - RegClient (`regctl` , `regbot`, `regsync`)
 - Crane (`crane` , `gcrane`, `krane`)
