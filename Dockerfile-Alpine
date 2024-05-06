@@ -19,6 +19,9 @@ ARG REGCLIENT_TAG="latest"
 #ARG CRANE_TAG="v0.19.1"
 ARG CRANE_TAG="latest"
 
+# Supercronic tag
+#ARG SUPERCRONIC_TAG="v0.2.29"
+ARG SUPERCRONIC_TAG="latest"
 
 
 # Create Directory for App
@@ -98,6 +101,17 @@ RUN bash -c /opt/install-skopeo.sh "${TARGETPLATFORM}" "${SKOPEO_TAG}"
 
 # Set Path to include Skopeo
 ENV PATH="/opt/skopeo:$PATH"
+
+
+
+# Copy Supercronic Installer Script
+COPY install-supercronic.sh /opt/install-supercronic.sh
+
+# RUN Supercronic Installer Script
+RUN bash -c /opt/install-supercronic.sh "${TARGETPLATFORM}" "${SUPERCRONIC_TAG}"
+
+# Set Path to include Supercronic
+ENV PATH="/opt/supercronic:$PATH"
 
 
 

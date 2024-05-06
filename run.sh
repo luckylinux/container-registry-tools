@@ -29,7 +29,7 @@ ${engine} stop --ignore ${containername}
 ${engine} rm --ignore ${containername}
 
 # Run Image with Infinite Loop to prevent it from automatically terminating
-${engine} run --privileged -d --name=${containername} --env-file "./.env" -v "./regctl:/etc/regctl" -v "${containersconfigfolder}:/etc/containers" localhost:5000/local/"${containerimage}"
+${engine} run --privileged -d --name=${containername} --env-file "./.env" -v "./regctl:/etc/regctl" -v "${containersconfigfolder}:/etc/containers" -v "./supercronic:/etc/supercronic" localhost:5000/local/"${containerimage}"
 
 # Open Interactive Shell with Container
 ${engine} exec -it ${containername} /bin/bash
