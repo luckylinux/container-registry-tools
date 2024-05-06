@@ -2,11 +2,11 @@
 
 # This is a "Hack" to allow compose.yml to pick up the Latest Image
 
-# Image Name
-image=${1-""}
-if [[ -z "$image" ]]
+# Image(s) Name(s)
+images=${1-""}
+if [[ -z "$images" ]]
 then
-    read -p "Enter the desired Image Name & Tag to Push to Local Registry: " image
+    read -p "Enter the desired Image Name & Tag (e.g. mycontainer:mytag-latest) to Push to Local Registry (multiple items can be separated by commas): " images
 fi
 
 ##################################################################################
@@ -31,11 +31,22 @@ EOF
 # Run a Local Registry WITHOUT Persistent Data Storage
 podman run -d --replace -p 5000:5000 --name registry registry:2
 
-# Tag the Image
-podman tag $image localhost:5000/local/$image
+# Split Images Variable to support Multiple Images
+IFS=','; imagesArray=($images); unset IFS;
 
-# Push the locally built Image to the Local Registry
-podman push --tls-verify=false localhost:5000/local/$image
+# Iterate over image
+for image in "${imagesArray[@]}"
+do
+   # Echo
+   echo "Tag image <${image}> and pushing it to Local Registry <localhost:5000/local/${image}>"
+
+   # Tag the Image
+   podman tag $image localhost:5000/local/$image
+
+   # Push the locally built Image to the Local Registry
+   podman push --tls-verify=false localhost:5000/local/$image
+done
+
 
 # Edit docker-compose file to use localhost:5000/local/$image
 # ...
