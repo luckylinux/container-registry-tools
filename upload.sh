@@ -69,6 +69,10 @@ do
    ${engine} tag $image localhost:5000/local/$image
 
    # Push the locally built Image to the Local Registry
+   # With Debugging
+   #${engine} push --log-level debug --tls-verify=false localhost:5000/local/$image
+
+   # Without Debugging
    ${engine} push --tls-verify=false localhost:5000/local/$image
 done
 
