@@ -6,6 +6,11 @@ ARG TARGETPLATFORM
 # App Path
 ARG APP_PATH="/opt/app"
 
+
+# Skopeo tag
+#ARG SKOPEO_TAG="v1.15"
+ARG SKOPEO_TAG="latest"
+
 # RegClient tag
 #ARG REGCLIENT_TAG="v0.6.0"
 ARG REGCLIENT_TAG="latest"
@@ -13,6 +18,8 @@ ARG REGCLIENT_TAG="latest"
 # Crane tag
 #ARG CRANE_TAG="v0.19.1"
 ARG CRANE_TAG="latest"
+
+
 
 # Create Directory for App
 RUN mkdir -p "/opt"
@@ -32,8 +39,12 @@ RUN apk update
 RUN apk add --no-cache ca-certificates bash curl wget shadow
 
 # Install skopeo
-RUN apk add --no-cache skopeo 
+# Not needed anymore when using Binary Packages from https://github.com/lework/skopeo-binary/releases
+# RUN apk add --no-cache skopeo 
 
+# Install podman
+# Needed when using Binary Packages from https://github.com/lework/skopeo-binary/releases since podman would be normally be pulled in together with skopeo
+RUN apk add --no-cache podman
 
 # Change Shell
 RUN chsh -s /bin/bash root
@@ -56,6 +67,17 @@ RUN bash -c /opt/install-regclient.sh "${TARGETPLATFORM}" "${REGCLIENT_TAG}"
 
 # Set Path to include RegClient
 ENV PATH="/opt/regclient:$PATH"
+
+
+
+# Copy Skopeo Installer Script
+COPY install-skopeo.sh /opt/install-skopeo.sh
+
+# RUN Skopeo Installer Script
+RUN bash -c /opt/install-skopeo.sh "${TARGETPLATFORM}" "${SKOPEO_TAG}"
+
+# Set Path to include Skopeo
+ENV PATH="/opt/skopeo:$PATH"
 
 
 
