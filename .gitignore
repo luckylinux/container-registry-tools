@@ -1,5 +1,9 @@
 # Ignore .env file
 .env
 
+# Ignore personal Folders
+containers
+regctl
+
 # Ignore includes
 includes

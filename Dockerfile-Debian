@@ -56,6 +56,26 @@ RUN apt-get install -y ca-certificates bash curl wget
 # Needed when using Binary Packages from https://github.com/lework/skopeo-binary/releases since podman would be normally be pulled in together with skopeo
 RUN apt-get install -y podman
 
+# Setup subuid and subgid in order to avoid Podman triggering WARNING 
+RUN echo "root:100000:65536" > /etc/subuid
+RUN echo "root:100000:65536" > /etc/subgid
+
+
+
+# Setup additional Directories for Podman Secrets
+# Not used for now
+#RUN mkdir -p /etc/secrets
+# chattr fails -> disable this:
+#RUN chattr +i /etc/secrets
+
+# Setup additional Directories for Regctl
+RUN mkdir -p /etc/regctl
+# chattr fails -> disable this:
+#RUN chattr +i /etc/regctl
+RUN ln -s /etc/regctl /root/.regctl
+
+
+
 # Clean APT Cache
 RUN apt-get clean
 

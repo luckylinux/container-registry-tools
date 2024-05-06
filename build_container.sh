@@ -70,6 +70,7 @@ do
     imagetags+=("${name}:${base,,}-${tag}")
     imagetags+=("${name}:${base,,}-latest")
 
+
     # Copy requirements into the build context
     # cp <myfolder> . -r docker build . -t  project:latest
 
@@ -99,7 +100,7 @@ do
     done
 
     # Build Container Image
-    ${engine} build ${opts} -f ${buildfile} . ${tagargs[*]}
+    ${engine} build ${opts} --cap-add LINUX_IMMUTABLE -f ${buildfile} . ${tagargs[*]}
 
     # Upload to local Registry
     source ./upload.sh "${images}"
