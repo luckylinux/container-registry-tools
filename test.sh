@@ -40,5 +40,5 @@ eargs+=("ghcr.io/home-assistant/home-assistant:stable")
 eargs+=("${LOCAL_MIRROR}")
 
 # Sync One Image
-#podman exec "${name}" bash -c "skopeo sync --scoped --src docker --dest docker --all \"ghcr.io/home-assistant/home-assistant:stable\" \"${LOCAL_MIRROR}\""
+podman exec "${name}" bash -c "skopeo sync --scoped --src docker --dest docker --all \"ghcr.io/home-assistant/home-assistant:stable\" \"${LOCAL_MIRROR}\""
 podman exec "${name}" bash -c "skopeo sync ${eargs[*]}"
