@@ -3,7 +3,10 @@
 
 # Ignore personal Folders
 containers
+containers/*
+
 regctl
+regctl/*
 
 # Ignore includes
 includes
