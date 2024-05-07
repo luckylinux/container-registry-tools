@@ -48,15 +48,15 @@ WORKDIR "${APP_PATH}"
 RUN apt-get update
 
 # Install other Dependencies / recommended Packages
-RUN apt-get install -y ca-certificates bash curl wget
+RUN apt-get install -y ca-certificates bash curl wget && apt-get clean
 
 # Install skopeo
 # Not needed anymore when using Binary Packages from https://github.com/lework/skopeo-binary/releases
-# RUN apt-get install -y skopeo
+# RUN apt-get install -y skopeo && apt-get clean
 
 # Install podman
 # Needed when using Binary Packages from https://github.com/lework/skopeo-binary/releases since podman would be normally be pulled in together with skopeo
-RUN apt-get install -y podman
+RUN apt-get install -y podman && apt-get clean
 
 # Setup subuid and subgid in order to avoid Podman triggering WARNING 
 RUN echo "root:100000:65536" > /etc/subuid
