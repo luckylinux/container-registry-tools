@@ -35,19 +35,28 @@ WORKDIR "${APP_PATH}"
 COPY app/ "${APP_PATH}"
 
 # Update Sources
-RUN apk update
-
 # Install other Dependencies / recommended Packages
 # Shadow is needed in order to use "chsh"
-RUN apk add --no-cache ca-certificates bash curl wget shadow shadow-subids shadow-login e2fsprogs-extra
+RUN --mount=type=cache,mode=0777,target=/var/cache/apk,sharing=locked \
+    --mount=type=cache,mode=0777,target=/var/lib/apk,sharing=locked \ 
+    apk update && \ 
+    apk add ca-certificates bash curl wget shadow shadow-subids shadow-login e2fsprogs-extra
+#    apk add --no-cache ca-certificates bash curl wget shadow shadow-subids shadow-login e2fsprogs-extra
 
 # Install skopeo
 # Not needed anymore when using Binary Packages from https://github.com/lework/skopeo-binary/releases
-# RUN apk add --no-cache skopeo 
+# RUN --mount=type=cache,mode=0777,target=/var/cache/apk,sharing=locked \ 
+#     --mount=type=cache,mode=0777,target=/var/lib/apk,sharing=locked \
+#     apk add skopeo 
+##     apk add --no-cache skopeo 
 
 # Install podman
 # Needed when using Binary Packages from https://github.com/lework/skopeo-binary/releases since podman would be normally be pulled in together with skopeo
-RUN apk add --no-cache podman
+RUN --mount=type=cache,mode=0777,target=/var/cache/apk,sharing=locked \
+    --mount=type=cache,mode=0777,target=/var/lib/apk,sharing=locked \
+    apk update && \
+    apk add podman
+#    apk add --no-cache podman
 
 # Setup subuid and subgid in order to avoid Podman triggering WARNING
 RUN echo "root:100000:65536" > /etc/subuid

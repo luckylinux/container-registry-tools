@@ -43,20 +43,35 @@ ADD etc /etc/
 # Change Workdir Back to App Folder
 WORKDIR "${APP_PATH}"
 
+# Use Cache
+RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
 # Update Sources
-RUN apt-get update
-
 # Install other Dependencies / recommended Packages
-RUN apt-get install --no-install-recommends -y ca-certificates bash curl wget && apt-get clean
+RUN --mount=type=cache,mode=0777,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,mode=0777,target=/var/lib/apt,sharing=locked \
+    apt-get update && \
+    apt-get install --no-install-recommends -y ca-certificates bash curl wget && \
+    echo "Finished installing base Packages"
+#    apt-get clean
 
 # Install skopeo
 # Not needed anymore when using Binary Packages from https://github.com/lework/skopeo-binary/releases
-# RUN apt-get install -y skopeo && apt-get clean
+# RUN --mount=type=cache,mode=0777,target=/var/cache/apt,sharing=locked \
+#     --mount=type=cache,mode=0777,target=/var/lib/apt,sharing=locked \
+#     apt-get update && \
+#     apt-get install -y skopeo && \
+#     echo "Finished installing Skopeo"
+#     apt-get clean
 
 # Install podman
 # Needed when using Binary Packages from https://github.com/lework/skopeo-binary/releases since podman would be normally be pulled in together with skopeo
-RUN apt-get install --no-install-recommends -y podman && apt-get clean
+RUN --mount=type=cache,mode=0777,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,mode=0777,target=/var/lib/apt,sharing=locked \
+    apt-get update && \
+    apt-get install --no-install-recommends -y podman && \
+    echo "Finished installing Podman"
+# apt-get clean
 
 # Setup subuid and subgid in order to avoid Podman triggering WARNING 
 RUN echo "root:100000:65536" > /etc/subuid

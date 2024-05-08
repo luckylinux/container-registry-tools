@@ -1,6 +1,9 @@
 # Ignore .env file
 .env
 
+# Ignore cache used for building containers
+cache
+
 # Ignore personal Folders
 containers
 containers/*

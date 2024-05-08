@@ -59,6 +59,9 @@ do
     # Select Dockerfile
     buildfile="Dockerfile-$base"
 
+    # Create Cache Directory
+    mkdir -p cache/${base,,}
+
     # Check if they are set
     if [[ ! -v name ]] || [[ ! -v tag ]]
     then
