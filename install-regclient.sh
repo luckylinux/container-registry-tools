@@ -6,6 +6,15 @@ TARGETPLATFORM=${1-"linux/amd64"}
 # Tag
 REGCLIENT_TAG=${2-"latest"}
 
+# Install Path
+REGCLIENT_PATH="/opt/regclient"
+
+# Cache Path
+REGCLIENT_CACHE_PATH="/var/lib/installer/regclient"
+
+# Repository
+REGCLIENT_REPOSITORY="regclient/regclient"
+
 # Architecture Mapping
 if [ "${TARGETPLATFORM}" = "linux/amd64" ]
 then
@@ -20,13 +29,34 @@ fi
 # Tag or Latest have different URL Structure
 if [[ "${REGCLIENT_TAG}" == "latest" ]]
 then
-   REGCLIENT_BASE_URL="https://github.com/regclient/regclient/releases/latest/download"
+   # Define Base URL
+   REGCLIENT_BASE_URL="https://github.com/${REGCLIENT_REPOSITORY}/releases/latest/download"
+
+   # Retrieve what Version the "latest" tag Corresponds to
+   REGCLIENT_VERSION=$(curl -H "Accept: application/vnd.github.v3+json" -sS  "https://api.github.com/repos/${REGCLIENT_REPOSITORY}/tags" | jq -r '.[0].name')
 else
-   REGCLIENT_BASE_URL="https://github.com/regclient/regclient/releases/download/${REGCLIENT_TAG}"
+   # Define Base URL
+   REGCLIENT_BASE_URL="https://github.com/${REGCLIENT_REPOSITORY}/releases/download/${REGCLIENT_TAG}"
+
+   # Version is the same as the Tag
+   REGCLIENT_VERSION=${REGCLIENT_TAG}
 fi
 
+# Regctl download Filename
+REGCTL_PACKAGE_FILENAME="regctl-linux-${ARCHITECTURE}"
+
+# Regctl download links
+REGCTL_PACKAGE_URL="${REGCLIENT_BASE_URL}/${CRANE_PACKAGE_FILENAME}"
+
+
 # Echo
-echo "Base URL Set to: ${REGCLIENT_BASE_URL}"
+echo "Download URL Set to: ${CRANE_PACKAGE_URL}"
+echo "Checksum URL Set to: ${CRANE_CHECKSUM_URL}"
+
+# Create Directory for Crane Executables (if it doesn't exist yet)
+mkdir -p "/opt/regclient"
+
+
 
 # regctl download links
 REGCTL_DOWNLOAD_URL="${REGCLIENT_BASE_URL}/regctl-linux-${ARCHITECTURE}"
