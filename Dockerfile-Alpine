@@ -40,7 +40,7 @@ COPY app/ "${APP_PATH}"
 RUN --mount=type=cache,mode=0777,target=/var/cache/apk,sharing=locked \
     --mount=type=cache,mode=0777,target=/var/lib/apk,sharing=locked \ 
     apk update && \ 
-    apk add ca-certificates bash curl wget shadow shadow-subids shadow-login e2fsprogs-extra
+    apk add ca-certificates bash curl wget shadow shadow-subids shadow-login e2fsprogs-extra coreutils jq
 #    apk add --no-cache ca-certificates bash curl wget shadow shadow-subids shadow-login e2fsprogs-extra
 
 # Install skopeo
@@ -90,12 +90,16 @@ ENV ENV /etc/profile
 ENV PATH="${APP_PATH}:$PATH"
 
 
+# Create folder for Caching Packages
+RUN mkdir -p /var/lib/installer
+
 
 # Copy Regclient Installer Script
 COPY install-regclient.sh /opt/install-regclient.sh
 
 # RUN Regclient Installer Script
-RUN bash -c /opt/install-regclient.sh "${TARGETPLATFORM}" "${REGCLIENT_TAG}"
+RUN --mount=type=cache,mode=0777,target=/var/lib/installer/regclient,sharing=locked \
+    bash -c /opt/install-regclient.sh "${TARGETPLATFORM}" "${REGCLIENT_TAG}"
 
 # Set Path to include RegClient
 ENV PATH="/opt/regclient:$PATH"
@@ -106,7 +110,8 @@ ENV PATH="/opt/regclient:$PATH"
 COPY install-skopeo.sh /opt/install-skopeo.sh
 
 # RUN Skopeo Installer Script
-RUN bash -c /opt/install-skopeo.sh "${TARGETPLATFORM}" "${SKOPEO_TAG}"
+RUN --mount=type=cache,mode=0777,target=/var/lib/installer/skopeo,sharing=locked \
+    bash -c /opt/install-skopeo.sh "${TARGETPLATFORM}" "${SKOPEO_TAG}"
 
 # Set Path to include Skopeo
 ENV PATH="/opt/skopeo:$PATH"
@@ -117,7 +122,8 @@ ENV PATH="/opt/skopeo:$PATH"
 COPY install-supercronic.sh /opt/install-supercronic.sh
 
 # RUN Supercronic Installer Script
-RUN bash -c /opt/install-supercronic.sh "${TARGETPLATFORM}" "${SUPERCRONIC_TAG}"
+RUN --mount=type=cache,mode=0777,target=/var/lib/installer/supercronic,sharing=locked \
+    bash -c /opt/install-supercronic.sh "${TARGETPLATFORM}" "${SUPERCRONIC_TAG}"
 
 # Set Path to include Supercronic
 ENV PATH="/opt/supercronic:$PATH"
@@ -127,8 +133,9 @@ ENV PATH="/opt/supercronic:$PATH"
 # Copy Crane Installer Script
 COPY install-crane.sh /opt/install-crane.sh
 
-# RUN Regclient Installer Script
-RUN bash -c /opt/install-crane.sh "${TARGETPLATFORM}" "${CRANE_TAG}"
+# RUN Crane Installer Script
+RUN --mount=type=cache,mode=0777,target=/var/lib/installer/crane,sharing=locked \
+    bash -c /opt/install-crane.sh "${TARGETPLATFORM}" "${CRANE_TAG}"
 
 # Set Path to include Crane
 ENV PATH="/opt/crane:$PATH"

@@ -6,6 +6,15 @@ TARGETPLATFORM=${1-"linux/amd64"}
 # Tag
 CRANE_TAG=${2-"latest"}
 
+# Install Path
+CRANE_PATH="/opt/crane"
+
+# Cache Path
+CRANE_CACHE_PATH="/var/lib/installer/crane"
+
+# Repository
+CRANE_REPOSITORY="google/go-containerregistry"
+
 # Architecture Mapping
 if [ "${TARGETPLATFORM}" = "linux/amd64" ]
 then
@@ -20,32 +29,100 @@ fi
 # Tag or Latest have different URL Structure
 if [[ "${CRANE_TAG}" == "latest" ]]
 then
-   CRANE_BASE_URL="https://github.com/google/go-containerregistry/releases/latest/download"
+   # Define Base URL
+   CRANE_BASE_URL="https://github.com/${CRANE_REPOSITORY}/releases/latest/download"
+
+   # Retrieve what Version the "latest" tag Corresponds to
+   CRANE_VERSION=$(curl -H "Accept: application/vnd.github.v3+json" -sS  "https://api.github.com/repos/${CRANE_REPOSITORY}/tags" | jq -r '.[0].name')
 else
-   CRANE_BASE_URL="https://github.com/google/go-containerregistry/releases/download/${CRANE_TAG}"
+   # Define Base URL
+   CRANE_BASE_URL="https://github.com/${CRANE_REPOSITORY}/releases/download/${CRANE_TAG}"
+
+   # Version is the same as the Tag
+   CRANE_VERSION=${CRANE_TAG}
 fi
 
 # Echo
 echo "Base URL Set to: ${CRANE_BASE_URL}"
 
+
+# Crane download Filename
+CRANE_PACKAGE_FILENAME="go-containerregistry_Linux_${ARCHITECTURE}.tar.gz"
+
+# Crane checksum Filename
+CRANE_CHECKSUM_FILENAME="checksums.txt"
+
 # Crane download links
-CRANE_DOWNLOAD_URL="${CRANE_BASE_URL}/go-containerregistry_Linux_${ARCHITECTURE}.tar.gz"
+CRANE_PACKAGE_URL="${CRANE_BASE_URL}/${CRANE_PACKAGE_FILENAME}"
+
+# Crane checksum links
+CRANE_CHECKSUM_URL="${CRANE_BASE_URL}/${CRANE_CHECKSUM_FILENAME}"
 
 # Echo
-echo "Download URL Set to: ${CRANE_DOWNLOAD_URL}"
+echo "Download URL Set to: ${CRANE_PACKAGE_URL}"
+echo "Checksum URL Set to: ${CRANE_CHECKSUM_URL}"
 
 # Create Directory for Crane Executables (if it doesn't exist yet)
 mkdir -p "/opt/crane"
 
-# Fetch Packages
-echo "Fetching Package for crane: ${CRANE_DOWNLOAD_URL}"
-curl -sS -L --output-dir /tmp -o crane.tar.gz --create-dirs "${CRANE_DOWNLOAD_URL}"
+# Create a ${CRANE_VERSION} subdirectory within CRANE_CACHE_PATH
+mkdir -p "${CRANE_CACHE_PATH}/${CRANE_VERSION}"
+
+# By default must download
+CRANE_PACKAGE_DOWNLOAD=1
+CRANE_CHECKSUM_DOWNLOAD=1
+
+
+# Check if Checksum File exists in Cache
+if [[ -f "${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_CHECKSUM_FILENAME}" ]]
+then
+    # Checksum File exists
+    CRANE_CHECKSUM_DOWNLOAD=0
+else
+    # Fetch Checksum File
+    echo "Fetching Checsum File for crane: ${CRANE_CHECKSUM_URL}"
+    curl -sS -L --output-dir "${CRANE_CACHE_PATH}/${CRANE_VERSION}" -o "${CRANE_CHECKSUM_FILENAME}" --create-dirs "${CRANE_CHECKSUM_URL}"
+fi
+
+
+
+# Check if Package File exists in Cache
+if [[ -f "${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_PACKAGE_FILENAME}" ]]
+then
+   # Package File exists
+   CRANE_PACKAGE_DOWNLOAD=0
+fi
+
+# Check if need to re-download Package
+if [[ ${CRANE_PACKAGE_DOWNLOAD} -ne 0 ]]
+then
+   # Fetch Package File
+   echo "Fetching Package for crane: ${CRANE_PACKAGE_URL}"
+   curl -sS -L --output-dir "${CRANE_CACHE_PATH}/${CRANE_VERSION}" -o "${CRANE_PACKAGE_FILENAME}" --create-dirs "${CRANE_PACKAGE_URL}"
+fi
+
+# Expected File Checksum
+CRANE_PACKAGE_EXPECTED_CHECKSUM=$(cat "${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_CHECKSUM_FILENAME}" | grep "${CRANE_PACKAGE_FILENAME}" | head -c 64 )
+
+# Calculate Actual Checksum
+CRANE_PACKAGE_ACTUAL_CHECKSUM=$(sha256sum "${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_PACKAGE_FILENAME}" | head -c 64)
+
+# Check if checksum is correct
+CRANE_PACKAGE_CHECK_CHECKSUM=$(echo "${CRANE_PACKAGE_EXPECTED_CHECKSUM} ${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_PACKAGE_FILENAME}" | sha256sum -c --status)
+
+# If Checksum is invalid, exit
+if [[ ${CRANE_PACKAGE_CHECK_CHECKSUM} -ne 0 ]]
+then
+   echo "Checksum is Invalid: expected ${CRANE_PACKAGE_EXPECTED_CHECKSUM} for File ${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_PACKAGE_FILENAME}, got ${CRANE_PACKAGE_ACTUAL_CHECKSUM}"
+   exit 9
+fi
 
 # Decompress the Archive
-tar xf /tmp/crane.tar.gz -C /opt/crane
+tar xf "${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_PACKAGE_FILENAME}" -C ${CRANE_PATH}
 
 # Remove the temporary Archive
-rm -f /tmp/crane.tar.gz
+# Disabled since we want to take advantage of Docker Buildx/Podman Buildah Cache
+# rm -f /tmp/crane.tar.gz
 
 # Make them executable
-chmod +x /opt/crane/*
+chmod +x ${CRANE_PATH}/*

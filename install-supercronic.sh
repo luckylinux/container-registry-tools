@@ -6,6 +6,15 @@ TARGETPLATFORM=${1-"linux/amd64"}
 # Tag
 SUPERCRONIC_TAG=${2-"latest"}
 
+# Install Path
+SUPERCRONIC_PATH="/opt/supercronic"
+
+# Cache Path
+SUPERCRONIC_CACHE_PATH="/var/lib/installer/supercronic"
+
+# Repository
+SUPERCRONIC_REPOSITORY="aptible/supercronic"
+
 # Architecture Mapping
 if [ "${TARGETPLATFORM}" = "linux/amd64" ]
 then
@@ -20,9 +29,17 @@ fi
 # Tag or Latest have different URL Structure
 if [[ "${SUPERCRONIC_TAG}" == "latest" ]]
 then
-   SUPERCRONIC_BASE_URL="https://github.com/aptible/supercronic/releases/latest/download"
+   # Define Base URL
+   SUPERCRONIC_BASE_URL="https://github.com/${SUPERCRONIC_REPOSITORY}/releases/latest/download"
+
+   # Retrieve what Version the "latest" tag Corresponds to
+   SUPERCRONIC_VERSION=$(curl -H "Accept: application/vnd.github.v3+json" -sS  "https://api.github.com/repos/${SUPERCRONIC_REPOSITORY}/tags" | jq -r '.[0].name')
 else
-   SUPERCRONIC_BASE_URL="https://github.com/aptible/supercronic/releases/download/${SUPERCRONIC_TAG}"
+   # Define Base URL
+   SUPERCRONIC_BASE_URL="https://github.com/${SUPERCRONIC_REPOSITORY}/releases/download/${SUPERCRONIC_TAG}"
+
+   # Version is the same as the Tag
+   SUPERCRONIC_VERSION=${SUPERCRONIC_TAG}
 fi
 
 # Echo

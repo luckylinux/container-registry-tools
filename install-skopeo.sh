@@ -6,6 +6,15 @@ TARGETPLATFORM=${1-"linux/amd64"}
 # Tag
 SKOPEO_TAG=${2-"latest"}
 
+# Install Path
+SKOPEO_PATH="/opt/skopeo"
+
+# Cache Path
+SKOPEO_CACHE_PATH="/var/lib/installer/skopeo"
+
+# Repository
+SKOPEO_REPOSITORY="lework/skopeo-binary"
+
 # Architecture Mapping
 if [ "${TARGETPLATFORM}" = "linux/amd64" ]
 then
@@ -20,9 +29,17 @@ fi
 # Tag or Latest have different URL Structure
 if [[ "${SKOPEO_TAG}" == "latest" ]]
 then
-   SKOPEO_BASE_URL="https://github.com/lework/skopeo-binary/releases/latest/download"
+   # Define Base URL
+   SKOPEO_BASE_URL="https://github.com/${SKOPEO_REPOSITORY}/releases/latest/download"
+
+   # Retrieve what Version the "latest" tag Corresponds to
+   SKOPEO_VERSION=$(curl -H "Accept: application/vnd.github.v3+json" -sS  "https://api.github.com/repos/${SKOPEO_REPOSITORY}/tags" | jq -r '.[0].name')
 else
-   SKOPEO_BASE_URL="https://github.com/lework/skopeo-binary/releases/download/${SKOPEO_TAG}"
+   # Define Base URL
+   SKOPEO_BASE_URL="https://github.com/${SKOPEO_REPOSITORY}/releases/download/${SKOPEO_TAG}"
+
+   # Version is the same as the Tag
+   SKOPEO_VERSION=${SKOPEO_TAG}
 fi
 
 # Echo
