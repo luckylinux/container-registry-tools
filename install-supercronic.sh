@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Exit on Error
+set -e
+
+# Enable Verbose Output
+# set -x
+
 # Architecture
 TARGETPLATFORM=${1-"linux/amd64"}
 
@@ -45,21 +51,101 @@ fi
 # Echo
 echo "Base URL Set to: ${SUPERCRONIC_BASE_URL}"
 
-# Supercronic download links
-SUPERCRONIC_DOWNLOAD_URL="${SUPERCRONIC_BASE_URL}/supercronic-linux-${ARCHITECTURE}"
+
+# Supercronic Package Filename
+SUPERCRONIC_PACKAGE_FILENAME="supercronic-linux-${ARCHITECTURE}"
+
+# Supercronic Checksum Filename
+# Unfortunately a separate file is not available - SHA256 Hash is Hardcoded into the Release Page
+# SUPERCRONIC_CHECKSUM_FILENAME="checksums.txt"
+
+# Supercronic Package Download Link
+SUPERCRONIC_PACKAGE_URL="${SUPERCRONIC_BASE_URL}/${SUPERCRONIC_PACKAGE_FILENAME}"
+
+# Supercronic Checksum Download Link
+# Unfortunately a separate file is not available - SHA256 Hash is Hardcoded into the Release Page
+# SUPERCRONIC_CHECKSUM_URL="${SUPERCRONIC_BASE_URL}/${SUPERCRONIC_CHECKSUM_FILENAME}"
 
 # Echo
-echo "Download URL Set to: ${SUPERCRONIC_DOWNLOAD_URL}"
+echo "Package URL Set to: ${SUPERCRONIC_PACKAGE_URL}"
+
+# Unfortunately a separate file is not available - SHA256 Hash is Hardcoded into the Release Page
+# echo "Checksum URL Set to: ${SUPERCRONIC_CHECKSUM_URL}"
 
 # Create Directory for Supercronic Executables (if it doesn't exist yet)
-mkdir -p "/opt/supercronic"
+mkdir -p "${SUPERCRONIC_PATH}"
 
-# Fetch Packages
-echo "Fetching Package for supercronic: ${SUPERCRONIC_DOWNLOAD_URL}"
-curl -sS -L --output-dir /opt/supercronic -o supercronic --create-dirs "${SUPERCRONIC_DOWNLOAD_URL}"
+# Create a ${SUPERCRONIC_VERSION} subdirectory within ${SUPERCRONIC_CACHE_PATH}
+mkdir -p "${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}"
 
-# Make them executable
-chmod +x /opt/supercronic/*
+# By default must download
+SUPERCRONIC_PACKAGE_DOWNLOAD=1
+SUPERCRONIC_CHECKSUM_DOWNLOAD=1
+
+
+
+# Check if Checksum File exists in Cache
+# Unfortunately a separate file is not available - SHA256 Hash is Hardcoded into the Release Page
+#if [[ -f "${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}/${SUPERCRONIC_CHECKSUM_FILENAME}" ]]
+#then
+#    # Checksum File exists
+#    SUPERCRONIC_CHECKSUM_DOWNLOAD=0
+#else
+#    # Download Checksum File
+#    echo "Downloading Checksum File for Supercronic from ${SUPERCRONIC_CHECKSUM_URL}"
+#    curl -sS -L --output-dir "${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}" -o "${SUPERCRONIC_CHECKSUM_FILENAME}" --create-dirs "${SUPERCRONIC_CHECKSUM_URL}"
+#fi
+
+
+
+
+# Check if Package File exists in Cache
+if [[ -f "${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}/${SUPERCRONIC_PACKAGE_FILENAME}" ]]
+then
+   # Package File exists
+   SUPERCRONIC_PACKAGE_DOWNLOAD=0
+fi
+
+# Check if need to re-download Package
+if [[ ${SUPERCRONIC_PACKAGE_DOWNLOAD} -ne 0 ]]
+then
+   # Download Package File
+   echo "Downloading Package for Supercronic from ${SUPERCRONIC_PACKAGE_URL}"
+   curl -sS -L --output-dir "${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}" -o "${SUPERCRONIC_PACKAGE_FILENAME}" --create-dirs "${SUPERCRONIC_PACKAGE_URL}"
+else
+   # Echo
+   echo "Using Cache for Supercronic from ${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}/${SUPERCRONIC_PACKAGE_FILENAME}"
+fi
+
+
+
+
+# Expected File Checksum
+# Unfortunately a separate file is not available - SHA256 Hash is Hardcoded into the Release Page
+#SUPERCRONIC_PACKAGE_EXPECTED_CHECKSUM=$(cat "${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}/${SUPERCRONIC_CHECKSUM_FILENAME}" | grep "${SUPERCRONIC_PACKAGE_FILENAME}" | head -c 64 )
+
+# Calculate Actual Checksum
+SUPERCRONIC_PACKAGE_ACTUAL_CHECKSUM=$(sha256sum "${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}/${SUPERCRONIC_PACKAGE_FILENAME}" | head -c 64)
+
+# Check if checksum is correct
+# Unfortunately a separate file is not available - SHA256 Hash is Hardcoded into the Release Page
+#SUPERCRONIC_PACKAGE_CHECK_CHECKSUM=$(echo "${SUPERCRONIC_PACKAGE_EXPECTED_CHECKSUM} ${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}/${SUPERCRONIC_PACKAGE_FILENAME}" | sha256sum -c --status)
+
+# If Checksum is invalid, exit
+# Unfortunately a separate file is not available - SHA256 Hash is Hardcoded into the Release Page
+#if [[ ${SUPERCRONIC_PACKAGE_CHECK_CHECKSUM} -ne 0 ]]
+#then
+#   echo "Checksum of Package Supercronic is Invalid: expected ${SUPERCRONIC_PACKAGE_EXPECTED_CHECKSUM} for File ${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}/${SUPERCRONIC_PACKAGE_FILENAME}, got ${SUPERCRONIC_PACKAGE_ACTUAL_CHECKSUM}"
+#   exit 9
+#fi
+
+
+# Copy Files from Cache Folder to Destination Folder
+cp "${SUPERCRONIC_CACHE_PATH}/${SUPERCRONIC_VERSION}/${SUPERCRONIC_PACKAGE_FILENAME}" "${SUPERCRONIC_PATH}/supercronic"
+
+
+# Make Binary File(s) executable
+chmod +x ${SUPERCRONIC_PATH}/*
 
 # Also create a Configuration Folder in /etc/supercronic
 mkdir -p /etc/supercronic

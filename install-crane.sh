@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Exit on Error
+set -e
+
+# Enable Verbose Output
+# set -x
+
 # Architecture
 TARGETPLATFORM=${1-"linux/amd64"}
 
@@ -46,31 +52,33 @@ fi
 echo "Base URL Set to: ${CRANE_BASE_URL}"
 
 
-# Crane download Filename
+# Crane Package Filename
 CRANE_PACKAGE_FILENAME="go-containerregistry_Linux_${ARCHITECTURE}.tar.gz"
 
-# Crane checksum Filename
+# Crane Checksum Filename
 CRANE_CHECKSUM_FILENAME="checksums.txt"
 
-# Crane download links
+# Crane Package Download Link
 CRANE_PACKAGE_URL="${CRANE_BASE_URL}/${CRANE_PACKAGE_FILENAME}"
 
-# Crane checksum links
+# Crane Checksum Download Link
 CRANE_CHECKSUM_URL="${CRANE_BASE_URL}/${CRANE_CHECKSUM_FILENAME}"
 
 # Echo
-echo "Download URL Set to: ${CRANE_PACKAGE_URL}"
+echo "Package URL Set to: ${CRANE_PACKAGE_URL}"
 echo "Checksum URL Set to: ${CRANE_CHECKSUM_URL}"
 
 # Create Directory for Crane Executables (if it doesn't exist yet)
-mkdir -p "/opt/crane"
+mkdir -p "${CRANE_PATH}"
 
-# Create a ${CRANE_VERSION} subdirectory within CRANE_CACHE_PATH
+# Create a ${CRANE_VERSION} subdirectory within ${CRANE_CACHE_PATH}
 mkdir -p "${CRANE_CACHE_PATH}/${CRANE_VERSION}"
 
 # By default must download
 CRANE_PACKAGE_DOWNLOAD=1
 CRANE_CHECKSUM_DOWNLOAD=1
+
+
 
 
 # Check if Checksum File exists in Cache
@@ -79,10 +87,11 @@ then
     # Checksum File exists
     CRANE_CHECKSUM_DOWNLOAD=0
 else
-    # Fetch Checksum File
-    echo "Fetching Checsum File for crane: ${CRANE_CHECKSUM_URL}"
+    # Download Checksum File
+    echo "Downloading Checksum File for Crane from ${CRANE_CHECKSUM_URL}"
     curl -sS -L --output-dir "${CRANE_CACHE_PATH}/${CRANE_VERSION}" -o "${CRANE_CHECKSUM_FILENAME}" --create-dirs "${CRANE_CHECKSUM_URL}"
 fi
+
 
 
 
@@ -96,10 +105,16 @@ fi
 # Check if need to re-download Package
 if [[ ${CRANE_PACKAGE_DOWNLOAD} -ne 0 ]]
 then
-   # Fetch Package File
-   echo "Fetching Package for crane: ${CRANE_PACKAGE_URL}"
+   # Download Package File
+   echo "Downloading Package for Crane from ${CRANE_PACKAGE_URL}"
    curl -sS -L --output-dir "${CRANE_CACHE_PATH}/${CRANE_VERSION}" -o "${CRANE_PACKAGE_FILENAME}" --create-dirs "${CRANE_PACKAGE_URL}"
+else
+   # Echo
+   echo "Using Cache for Crane from ${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_PACKAGE_FILENAME}"
 fi
+
+
+
 
 # Expected File Checksum
 CRANE_PACKAGE_EXPECTED_CHECKSUM=$(cat "${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_CHECKSUM_FILENAME}" | grep "${CRANE_PACKAGE_FILENAME}" | head -c 64 )
@@ -113,7 +128,7 @@ CRANE_PACKAGE_CHECK_CHECKSUM=$(echo "${CRANE_PACKAGE_EXPECTED_CHECKSUM} ${CRANE_
 # If Checksum is invalid, exit
 if [[ ${CRANE_PACKAGE_CHECK_CHECKSUM} -ne 0 ]]
 then
-   echo "Checksum is Invalid: expected ${CRANE_PACKAGE_EXPECTED_CHECKSUM} for File ${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_PACKAGE_FILENAME}, got ${CRANE_PACKAGE_ACTUAL_CHECKSUM}"
+   echo "Checksum of Package Crane is Invalid: expected ${CRANE_PACKAGE_EXPECTED_CHECKSUM} for File ${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_PACKAGE_FILENAME}, got ${CRANE_PACKAGE_ACTUAL_CHECKSUM}"
    exit 9
 fi
 
@@ -124,5 +139,5 @@ tar xf "${CRANE_CACHE_PATH}/${CRANE_VERSION}/${CRANE_PACKAGE_FILENAME}" -C ${CRA
 # Disabled since we want to take advantage of Docker Buildx/Podman Buildah Cache
 # rm -f /tmp/crane.tar.gz
 
-# Make them executable
+# Make Binary File(s) executable
 chmod +x ${CRANE_PATH}/*
