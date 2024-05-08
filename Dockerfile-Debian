@@ -43,7 +43,8 @@ ADD etc /etc/
 # Change Workdir Back to App Folder
 WORKDIR "${APP_PATH}"
 
-# Use Cache
+# Use Cache (Keep downloaded Files)
+# They are stored in the Cache directory, NOT in the final Container Image
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
 # Update Sources
@@ -53,7 +54,6 @@ RUN --mount=type=cache,mode=0777,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     apt-get install --no-install-recommends -y ca-certificates bash curl wget jq && \
     echo "Finished installing base Packages"
-#    apt-get clean
 
 # Install skopeo
 # Not needed anymore when using Binary Packages from https://github.com/lework/skopeo-binary/releases
@@ -62,7 +62,6 @@ RUN --mount=type=cache,mode=0777,target=/var/cache/apt,sharing=locked \
 #     apt-get update && \
 #     apt-get install -y skopeo && \
 #     echo "Finished installing Skopeo"
-#     apt-get clean
 
 # Install podman
 # Needed when using Binary Packages from https://github.com/lework/skopeo-binary/releases since podman would be normally be pulled in together with skopeo
@@ -71,7 +70,6 @@ RUN --mount=type=cache,mode=0777,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     apt-get install --no-install-recommends -y podman && \
     echo "Finished installing Podman"
-# apt-get clean
 
 # Setup subuid and subgid in order to avoid Podman triggering WARNING 
 RUN echo "root:100000:65536" > /etc/subuid
@@ -91,10 +89,6 @@ RUN mkdir -p /etc/regctl
 #RUN chattr +i /etc/regctl
 RUN ln -s /etc/regctl /root/.regctl
 
-
-
-# Clean APT Cache
-RUN apt-get clean
 
 # Change Shell
 RUN chsh -s /bin/bash root
