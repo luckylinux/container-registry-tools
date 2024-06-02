@@ -17,8 +17,8 @@ deb http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing main non
 deb-src http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing main non-free non-free-firmware contrib
 
 # SECURITY UPDATES
-deb http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-security main non-free non-free-firmware contrib
-deb-src http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-security main non-free non-free-firmware contrib
+deb http://snapshot.debian.org/archive/debian-security/20240401T030239Z/ testing-security main non-free non-free-firmware contrib
+deb-src http://snapshot.debian.org/archive/debian-security/20240401T030239Z/ testing-security main non-free non-free-firmware contrib
 
 # UPDATES
 deb http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-updates main non-free non-free-firmware contrib
