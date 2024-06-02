@@ -13,13 +13,13 @@
 
 ## Freeze Testing Repositories to a given Date (breakeges are Introduced due to libglib2.0-0 -> libglib2.0-0t64 and conmon_2.1.10+ds1-1+b1)
 # MAIN
-deb https://snapshot.debian.org/archive/debian/20240401T030239Z/ testing main non-free non-free-firmware contrib
-deb-src https://snapshot.debian.org/archive/debian/20240401T030239Z/ testing main non-free non-free-firmware contrib
+deb http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing main non-free non-free-firmware contrib
+deb-src http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing main non-free non-free-firmware contrib
 
 # SECURITY UPDATES
-deb https://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-security main non-free non-free-firmware contrib
-deb-src https://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-security main non-free non-free-firmware contrib
+deb http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-security main non-free non-free-firmware contrib
+deb-src http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-security main non-free non-free-firmware contrib
 
 # UPDATES
-deb https://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-updates main non-free non-free-firmware contrib
-deb-src https://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-updates main non-free non-free-firmware contrib
+deb http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-updates main non-free non-free-firmware contrib
+deb-src http://snapshot.debian.org/archive/debian/20240401T030239Z/ testing-updates main non-free non-free-firmware contrib
