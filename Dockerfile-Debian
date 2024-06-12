@@ -37,8 +37,10 @@ COPY app/ "${APP_PATH}"
 # Add APT Configuration for more recent (testing) Packages
 # Change Directory
 WORKDIR "/etc"
+
 # Copy sources.list.d and preferences.d Files
-ADD etc /etc/
+# ONLY NEEDED WHEN USING APT PINNING with Debian Stable as a Base
+#ADD etc /etc/
 
 # Change Workdir Back to App Folder
 WORKDIR "${APP_PATH}"
