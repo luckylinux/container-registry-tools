@@ -106,7 +106,7 @@ do
     done
 
     # Build Container Image
-    ${engine} build ${opts} --cap-add LINUX_IMMUTABLE ${tagargs[*]} -f ${buildfile} .
+    ${engine} build ${opts[*]} --cap-add LINUX_IMMUTABLE ${tagargs[*]} -f ${buildfile} .
 
     # Upload to local Registry
     source ./upload.sh "${images}"
