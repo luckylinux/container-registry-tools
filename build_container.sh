@@ -34,7 +34,10 @@ name="container-registry-tools"
 
 # Options
 # Use --no-cache when e.g. updating docker-entrypoint.sh and images don't get updated as they should
-opts=""
+opts=()
+#opts+=("--log-level=debug")
+opts+=("--network=host")
+#opts+=("--dns=192.168.1.4")
 #opts="--no-cache"
 
 # Base Image
