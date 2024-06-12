@@ -1,0 +1,16 @@
+FROM debian:testing
+
+# Print Nameservers
+RUN echo "=========== DNS Servers in /etc/resolv.conf ============" && cat /etc/resolv.conf && echo "=========== DNS Servers in /etc/resolv.conf ============"
+
+# Update Sources
+# Install other Dependencies / recommended Packages
+RUN --mount=type=cache,mode=0777,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,mode=0777,target=/var/lib/apt,sharing=locked \
+    apt-get update && \
+    apt-get install --no-install-recommends -y ca-certificates bash curl wget jq && \
+    echo "Finished installing base Packages"
+
+# Try to get the Public IP Address
+RUN curl -4 ifconfig.me
+RUN curl -6 ifconfig.me

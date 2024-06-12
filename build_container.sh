@@ -35,16 +35,23 @@ name="container-registry-tools"
 # Options
 # Use --no-cache when e.g. updating docker-entrypoint.sh and images don't get updated as they should
 opts=()
+opts+=("--no-cache")
 #opts+=("--log-level=debug")
-opts+=("--network=host")
-#opts+=("--dns=192.168.1.4")
-#opts="--no-cache"
+#opts+=("--network=host")
+#opts+=("--dns=192.168.1.3")
+opts+=("--network=slirp4netns")
+#opts+=("--network=pasta:--ipv4-only,--dns-forward,192.168.1.3,--dns,192.168.1.3,--dhcp-dns,--search,none")
+#opts+=("--network=pasta:--ipv4-only,--dns-forward,192.168.1.3,--dns,192.168.1.3,-a,192.168.8.26,-n,20,-g,192.168.1.1")
+#opts+=("--network=pasta:-a,192.168.8.26,-n,20,-g,192.168.1.1")
+#opts+=("--network=pasta:--ipv6-only,-t,2a06:4004:12c8:1::8:25/80")
+#opts+=("--network=pasta")
 
 # Base Image
 # "Alpine" or "Debian"
 bases=()
 bases+=("Alpine")
 bases+=("Debian")
+#bases+=("Test")
 
 # Mandatory Tag
 #tag=$(cat ./tag.txt)
