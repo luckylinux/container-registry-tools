@@ -33,13 +33,23 @@ run_local_registry "${engine}"
 name="container-registry-tools"
 
 # Options
-# Use --no-cache when e.g. updating docker-entrypoint.sh and images don't get updated as they should
 opts=()
-opts+=("--no-cache")
+
+# Use --no-cache when e.g. updating docker-entrypoint.sh and images don't get updated as they should
+#opts+=("--no-cache")
+
+# Podman 5.x with Pasta doesn't handle Networking Correctly
+# Force to use slirp4netns
+opts+=("--network=slirp4netns")
+
+# Add Capacilities
+opts+=("--cap-add")
+opts+=("LINUX_IMMUTABLE")
+
+# NOT WORKING
 #opts+=("--log-level=debug")
 #opts+=("--network=host")
 #opts+=("--dns=192.168.1.3")
-opts+=("--network=slirp4netns")
 #opts+=("--network=pasta:--ipv4-only,--dns-forward,192.168.1.3,--dns,192.168.1.3,--dhcp-dns,--search,none")
 #opts+=("--network=pasta:--ipv4-only,--dns-forward,192.168.1.3,--dns,192.168.1.3,-a,192.168.8.26,-n,20,-g,192.168.1.1")
 #opts+=("--network=pasta:-a,192.168.8.26,-n,20,-g,192.168.1.1")
@@ -113,7 +123,7 @@ do
     done
 
     # Build Container Image
-    ${engine} build ${opts[*]} --cap-add LINUX_IMMUTABLE ${tagargs[*]} -f ${buildfile} .
+    ${engine} build ${opts[*]} ${tagargs[*]} -f ${buildfile} .
 
     # Upload to local Registry
     source ./upload.sh "${images}"
