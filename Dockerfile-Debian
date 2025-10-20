@@ -1,4 +1,4 @@
-FROM debian:testing
+FROM debian:trixie
 
 ARG TARGETPLATFORM
 #ARG BUILDPLATFORM
@@ -35,8 +35,9 @@ WORKDIR "${APP_PATH}"
 COPY app/ "${APP_PATH}"
 
 # Add APT Configuration for more recent (testing) Packages
+# ONLY NEEDED WHEN USING APT PINNING with Debian Stable as a Base
 # Change Directory
-WORKDIR "/etc"
+#WORKDIR "/etc"
 
 # Copy sources.list.d and preferences.d Files
 # ONLY NEEDED WHEN USING APT PINNING with Debian Stable as a Base
