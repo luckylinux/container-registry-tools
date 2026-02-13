@@ -126,5 +126,5 @@ do
     ${engine} build ${opts[*]} ${tagargs[*]} -f ${buildfile} .
 
     # Upload to local Registry
-    source ./upload.sh "${images}"
+    # source ./upload.sh "${images}"
 done
